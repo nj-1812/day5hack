@@ -1,0 +1,53 @@
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meet the Team</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container wide">
+    <a class="back" href="index.html">← Home</a>
+    <h1>👥 Meet the Team</h1>
+    <p>The 20 builders of CSE Toolbox</p>
+    <ul id="team"></ul>
+    <p class="credit">Team page built by Domi Riya</p>
+  </div>
+
+  <script>
+    const team = [
+      { name: "V Anushree", work: "Home page" },
+      { name: "Akaansha Vikram", work: "Shared design (style.css)" },
+      { name: "S Krishitha", work: "Digital Clock" },
+      { name: "Harshini S", work: "Counter" },
+      { name: "Sanjay D S", work: "Calculator" },
+      { name: "Kandakuri Sirivani Swathi", work: "BMI Calculator" },
+      { name: "Joshika R", work: "Age Calculator" },
+      { name: "Dill Anto Jason C", work: "Dice Roller" },
+      { name: "Nirupam S", work: "Coin Toss" },
+      { name: "Nirmal Kumar Vandhana Shree", work: "Temperature Converter" },
+      { name: "Jonish Manojin AG", work: "Quote Generator" },
+      { name: "Bavathaarini NS", work: "To-Do List" },
+      { name: "Viswaa S", work: "Stopwatch" },
+      { name: "Jesu Ronith", work: "Password Generator" },
+      { name: "S S Padmasree", work: "Character Counter" },
+      { name: "R Manmohan", work: "Times Table" },
+      { name: "Sahanaa D P", work: "Guess the Number" },
+      { name: "Natasha Amalie", work: "Mood Picker" },
+      { name: "Amirthaa M", work: "Bill Splitter" },
+      { name: "Domi Riya", work: "Meet the Team page" }
+    ];
+
+    const list = document.querySelector("#team");
+
+    team.forEach((member, index) => {
+      const li = document.createElement("li");
+      li.textContent = String(index).padStart(2, "0") + " — " + member.name + " • " + member.work;
+      list.appendChild(li);
+    });
+  </script>
+</body>
+</html>
+
