@@ -1,0 +1,39 @@
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Temperature Converter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <a class="back" href="index.html">← Home</a>
+    <h1>🌡️ Temperature Converter</h1>
+    <input id="temp" type="number" placeholder="Enter temperature">
+    <button id="toF">°C → °F</button>
+    <button id="toC">°F → °C</button>
+    <div class="result" id="result"></div>
+    <p class="credit">Built by Nirmal Kumar Vandhana Shree</p>
+  </div>
+
+  <script>
+    const input = document.querySelector("#temp");
+    const result = document.querySelector("#result");
+
+    document.querySelector("#toF").addEventListener("click", () => {
+      if (input.value === "") return;
+      const f = Number(input.value) * 9 / 5 + 32;
+      result.textContent = input.value + "°C = " + f.toFixed(1) + "°F";
+    });
+
+    document.querySelector("#toC").addEventListener("click", () => {
+      if (input.value === "") return;
+      const c = (Number(input.value) - 32) * 5 / 9;
+      result.textContent = input.value + "°F = " + c.toFixed(1) + "°C";
+    });
+  </script>
+</body>
+</html>
+
