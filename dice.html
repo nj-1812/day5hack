@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dice Roller</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <a class="back" href="index.html">← Home</a>
+    <h1>🎲 Dice Roller</h1>
+    <div class="big" id="dice">⚀</div>
+    <button id="rollBtn">Roll</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const faces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+
+    document.querySelector("#rollBtn").addEventListener("click", () => {
+      const index = Math.floor(Math.random() * 6);
+      document.querySelector("#dice").textContent = faces[index];
+      document.querySelector("#result").textContent = "You rolled " + (index + 1);
+    });
+  </script>
+</body>
+</html>
