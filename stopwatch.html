@@ -1,0 +1,53 @@
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stopwatch</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <a class="back" href="index.html">← Home</a>
+    <h1>⏱️ Stopwatch</h1>
+    <div class="big" id="display">00:00</div>
+    <button id="startBtn">Start</button>
+    <button id="stopBtn">Stop</button>
+    <button id="resetBtn">Reset</button>
+    <p class="credit">Built by Viswaa S</p>
+  </div>
+
+  <script>
+    let seconds = 0;
+    let timer = null;
+    const display = document.querySelector("#display");
+
+    function show() {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      display.textContent = String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+    }
+
+    document.querySelector("#startBtn").addEventListener("click", () => {
+      if (timer !== null) return;
+      timer = setInterval(() => {
+        seconds++;
+        show();
+      }, 1000);
+    });
+
+    document.querySelector("#stopBtn").addEventListener("click", () => {
+      clearInterval(timer);
+      timer = null;
+    });
+
+    document.querySelector("#resetBtn").addEventListener("click", () => {
+      clearInterval(timer);
+      timer = null;
+      seconds = 0;
+      show();
+    });
+  </script>
+</body>
+</html>
