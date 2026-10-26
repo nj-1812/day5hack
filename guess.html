@@ -1,0 +1,50 @@
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guess the Number</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <a class="back" href="index.html">← Home</a>
+    <h1>🎯 Guess the Number</h1>
+    <p>I'm thinking of a number from 1 to 20.</p>
+    <input id="guess" type="number" placeholder="Your guess">
+    <button id="guessBtn">Guess</button>
+    <div class="result" id="message"></div>
+    <p id="attempts">Attempts: 0</p>
+    <p class="credit">Built by Sahanaa D P</p>
+  </div>
+
+  <script>
+    let secret = Math.floor(Math.random() * 20) + 1;
+    let attempts = 0;
+    const message = document.querySelector("#message");
+
+    document.querySelector("#guessBtn").addEventListener("click", () => {
+      const guess = Number(document.querySelector("#guess").value);
+
+      if (guess < 1 || guess > 20) {
+        message.textContent = "Enter a number from 1 to 20";
+        return;
+      }
+
+      attempts++;
+      document.querySelector("#attempts").textContent = "Attempts: " + attempts;
+
+      if (guess === secret) {
+        message.textContent = "🎉 Correct! It was " + secret + ". New game started.";
+        secret = Math.floor(Math.random() * 20) + 1;
+        attempts = 0;
+      } else if (guess < secret) {
+        message.textContent = "Too low ⬆️";
+      } else {
+        message.textContent = "Too high ⬇️";
+      }
+    });
+  </script>
+</body>
+</html>
