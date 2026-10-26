@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Age Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <a class="back" href="index.html">← Home</a>
+    <h1>🎂 Age Calculator</h1>
+    <input id="dob" type="date">
+    <button id="calcBtn">Find My Age</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    document.querySelector("#calcBtn").addEventListener("click", () => {
+      const value = document.querySelector("#dob").value;
+
+      if (value === "") {
+        document.querySelector("#result").textContent = "Please pick your birth date";
+        return;
+      }
+
+      const birth = new Date(value);
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+
+      document.querySelector("#result").textContent = "You are " + age + " years old";
+    });
+  </script>
+</body>
+</html>
