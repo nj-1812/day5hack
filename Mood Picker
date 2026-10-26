@@ -1,0 +1,32 @@
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mood Picker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <a class="back" href="index.html">← Home</a>
+    <h1>😊 Mood Picker</h1>
+    <p>How are you feeling today?</p>
+    <button onclick="setMood('😄', 'Happy! Keep shining.', '#fde68a')">😄</button>
+    <button onclick="setMood('😴', 'Tired? Take a short break.', '#c7d2fe')">😴</button>
+    <button onclick="setMood('😤', 'Stressed? Breathe and take one step at a time.', '#fecaca')">😤</button>
+    <button onclick="setMood('🤩', 'Excited! Go build something.', '#bbf7d0')">🤩</button>
+    <div class="big" id="emoji"></div>
+    <div class="result" id="message"></div>
+    <p class="credit">Built by Natasha Amalie</p>
+  </div>
+
+  <script>
+    function setMood(emoji, message, colour) {
+      document.querySelector("#emoji").textContent = emoji;
+      document.querySelector("#message").textContent = message;
+      document.body.style.background = colour;
+    }
+  </script>
+</body>
+</html>
