@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <a class="back" href="index.html">← Home</a>
+    <h1>➗ Calculator</h1>
+    <input id="a" type="number" placeholder="First number">
+    <input id="b" type="number" placeholder="Second number">
+    <button onclick="calculate('+')">+</button>
+    <button onclick="calculate('-')">−</button>
+    <button onclick="calculate('*')">×</button>
+    <button onclick="calculate('/')">÷</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function calculate(op) {
+      const a = Number(document.querySelector("#a").value);
+      const b = Number(document.querySelector("#b").value);
+      let answer;
+
+      if (op === "+") answer = a + b;
+      if (op === "-") answer = a - b;
+      if (op === "*") answer = a * b;
+      if (op === "/") {
+        answer = (b === 0) ? "Cannot divide by zero" : a / b;
+      }
+
+      document.querySelector("#result").textContent = "Result: " + answer;
+    }
+  </script>
+</body>
+</html>
