@@ -1,0 +1,36 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quote Generator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <a class="back" href="index.html">← Home</a>
+    <h1>💬 Daily Motivation</h1>
+    <p class="result" id="quote">Click for a quote!</p>
+    <button id="quoteBtn">New Quote</button>
+    <p class="credit">Built by Jonish Manojin AG</p>
+  </div>
+
+  <script>
+    const quotes = [
+      "Every expert was once a beginner.",
+      "Bugs are just lessons in disguise.",
+      "Small steps every day lead to big results.",
+      "Code a little, learn a lot.",
+      "Mistakes mean you are trying.",
+      "Your first project does not need to be perfect, it needs to be finished.",
+      "Curiosity is the best programming language."
+    ];
+
+    document.querySelector("#quoteBtn").addEventListener("click", () => {
+      const index = Math.floor(Math.random() * quotes.length);
+      document.querySelector("#quote").textContent = quotes[index];
+    });
+  </script>
+</body>
+</html>
