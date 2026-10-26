@@ -1,0 +1,41 @@
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bill Splitter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <a class="back" href="index.html">← Home</a>
+    <h1>🧾 Bill Splitter</h1>
+    <input id="bill" type="number" placeholder="Total bill (₹)">
+    <input id="tip" type="number" placeholder="Tip %" value="10">
+    <input id="people" type="number" placeholder="Number of people" value="2">
+    <button id="splitBtn">Split</button>
+    <div class="result" id="result"></div>
+    <p class="credit">Built by Amirthaa M</p>
+  </div>
+
+  <script>
+    document.querySelector("#splitBtn").addEventListener("click", () => {
+      const bill = Number(document.querySelector("#bill").value);
+      const tip = Number(document.querySelector("#tip").value);
+      const people = Number(document.querySelector("#people").value);
+
+      if (bill <= 0 || people <= 0) {
+        document.querySelector("#result").textContent = "Enter a valid bill and number of people";
+        return;
+      }
+
+      const total = bill + (bill * tip / 100);
+      const each = total / people;
+
+      document.querySelector("#result").textContent =
+        "Total: ₹" + total.toFixed(2) + " | Each pays: ₹" + each.toFixed(2);
+    });
+  </script>
+</body>
+</html>
