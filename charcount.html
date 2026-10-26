@@ -1,0 +1,30 @@
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Character Counter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <a class="back" href="index.html">← Home</a>
+    <h1>🔤 Character Counter</h1>
+    <textarea id="text" rows="6" placeholder="Start typing..."></textarea>
+    <div class="result" id="stats">Characters: 0 | Words: 0</div>
+    <p class="credit">Built by S S Padmasree</p>
+  </div>
+
+  <script>
+    document.querySelector("#text").addEventListener("input", (event) => {
+      const text = event.target.value;
+      const chars = text.length;
+      const words = text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
+
+      document.querySelector("#stats").textContent =
+        "Characters: " + chars + " | Words: " + words;
+    });
+  </script>
+</body>
+</html>
