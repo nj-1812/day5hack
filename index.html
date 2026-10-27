@@ -1,35 +1,678 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CSE Toolbox</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HERALYTICS Case Desk</title>
+<meta name="description" content="HERALYTICS: a vintage true-crime data investigation game by ACM-W Sathyabama.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Kalam:wght@400;700&family=Alfa+Slab+One&family=Oswald:wght@500;600&display=swap">
+<style>
+html{-webkit-text-size-adjust:100%}
+img{max-width:100%}
+[hidden]{display:none!important}
+/* Layout: one kraft case-file board. Polaroids taped on, black label tags for headings, red rubber stamps for verdicts. Single committed light paper look. */
+:root{
+  color-scheme:light;
+  --kraft:#c8a675; --kraft-deep:#a98552; --kraft-edge:#8d6c3f;
+  --paper:#f4ecd8; --paper-2:#ebdfc3;
+  --ink:#241d16; --ink-soft:#5a4a39;
+  --red:#b02a20; --green:#2f6b3a; --tag:#1d1a16;
+  --tape:rgba(236,220,178,.82); --hilite:#f3d77e; --crime:#f2c230;
+  --display:"Special Elite","Courier New",monospace;
+  --body:"Courier Prime","Courier New",monospace;
+  --hand:"Kalam","Comic Sans MS",cursive;
+  --stamp:"Alfa Slab One","Rockwell",Georgia,serif;
+  --label:"Oswald","Arial Narrow",Impact,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;background-color:var(--kraft);
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35 0 0 0 0 .24 0 0 0 0 .12 0 0 0 .38 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+  radial-gradient(ellipse at 20% 10%,rgba(255,240,200,.35),transparent 55%),radial-gradient(ellipse at 90% 90%,rgba(90,60,25,.25),transparent 60%);}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;line-height:1.15;text-wrap:balance}
+p{margin:0}
+
+.tape{background:var(--crime);color:var(--tag);font-family:var(--label);font-weight:600;letter-spacing:.2em;font-size:.95rem;white-space:nowrap;overflow:hidden;padding:.3rem 0;border-block:4px solid var(--tag)}
+.tape span{display:inline-block;animation:crawl 45s linear infinite}
+@keyframes crawl{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.tape span{animation:none}*{transition:none!important;animation:none!important}}
+
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.mast{padding-block:1.4rem .6rem}
+.mast .wrap{display:flex;flex-wrap:wrap;gap:1rem 1.5rem;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:.9rem;text-decoration:none;color:inherit}
+.brand .box{border:4px solid var(--red);padding:.2rem .9rem;font-family:var(--display);color:var(--red);font-size:clamp(1.6rem,5vw,2.4rem);letter-spacing:.06em;background:rgba(244,236,216,.25)}
+.brand small{display:block;font-family:var(--body);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft)}
+.fp{width:58px;height:70px;flex:none;opacity:.85}
+nav{display:flex;gap:.5rem;flex-wrap:wrap}
+.lbl,nav a{font-family:var(--label);font-weight:600;text-transform:uppercase;letter-spacing:.1em;background:var(--tag);color:var(--paper);padding:.3rem .8rem;display:inline-block;text-decoration:none;font-size:.85rem;clip-path:polygon(0 4%,100% 0,98% 100%,1% 96%)}
+nav a{background:transparent;color:var(--tag);border:2px solid var(--tag);clip-path:none}
+nav a[aria-current="page"],nav a:hover{background:var(--tag);color:var(--paper)}
+
+main{padding-block:1rem 3rem}
+.board{display:grid;gap:2.2rem}
+.sheet{background:var(--paper);border-radius:2px;padding:clamp(1.1rem,3.5vw,2rem);position:relative;box-shadow:0 2px 0 var(--paper-2),0 14px 30px rgba(60,35,10,.35)}
+.sheet.ring::after{content:"";position:absolute;width:120px;height:120px;right:6%;bottom:-30px;border-radius:50%;border:9px solid rgba(120,75,30,.13);box-shadow:inset 0 0 0 2px rgba(120,75,30,.08);pointer-events:none}
+.clip{position:absolute;top:-18px;width:20px;height:60px}
+.secrow{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;justify-content:space-between;margin-bottom:1.2rem}
+.muted{color:var(--ink-soft)}
+.hand{font-family:var(--hand)}
+
+/* stamps */
+.stamp{font-family:var(--stamp);text-transform:uppercase;border:4px solid currentColor;border-radius:6px;padding:.1rem .6rem;line-height:1.05;display:inline-block;transform:rotate(-9deg);opacity:.88;letter-spacing:.03em;
+  -webkit-mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='g'><feTurbulence baseFrequency='.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.7'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='g'><feTurbulence baseFrequency='.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.7'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>")}
+.stamp.red{color:var(--red)} .stamp.green{color:var(--green)} .stamp.ink{color:var(--ink-soft)}
+.stamp.big{font-size:clamp(1.8rem,6vw,3rem)}
+.stamp.slam{animation:slam .45s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes slam{from{transform:rotate(-9deg) scale(2.4);opacity:0}to{transform:rotate(-9deg) scale(1);opacity:.88}}
+
+/* desk */
+.hello{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:2rem;align-items:center}
+@media (max-width:760px){.hello{grid-template-columns:1fr}}
+.hello h1{font-size:clamp(2rem,6vw,3.2rem)}
+.namefield{display:flex;gap:.5rem;align-items:baseline;flex-wrap:wrap;margin-top:.8rem;font-size:1.05rem}
+.namefield input{border:0;border-bottom:2px solid var(--ink);background:transparent;font-family:var(--hand);font-size:1.4rem;padding:0 .2rem;width:min(100%,16rem)}
+.namefield input:focus-visible{outline:none;border-bottom-color:var(--red);background:rgba(243,215,126,.35)}
+.casecard{background:#fbf6e8;padding:1rem 1.2rem;transform:rotate(1.6deg);box-shadow:0 6px 14px rgba(60,35,10,.25);display:grid;gap:.35rem;position:relative;max-width:330px;justify-self:center;width:100%}
+.casecard h3{font-family:var(--stamp);color:var(--red);font-size:1.1rem;text-transform:uppercase;letter-spacing:.06em}
+.casecard div{border-bottom:1px solid #cdbb94;padding-bottom:.2rem;font-size:.95rem}
+.casecard b{font-family:var(--label);font-weight:500;letter-spacing:.08em;text-transform:uppercase;font-size:.78rem;color:var(--ink-soft);margin-right:.4rem}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;margin-top:1.6rem}
+@media (max-width:760px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.metric{border:2px solid var(--ink);padding:.7rem .9rem;background:#fbf6e8;display:grid;gap:.1rem}
+.metric span{font-family:var(--label);font-weight:500;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red)}
+.metric strong{font-family:var(--display);font-weight:400;font-size:1.7rem;font-variant-numeric:tabular-nums}
+
+.folders{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2rem 1.2rem;padding-top:.8rem}
+@media (max-width:860px){.folders{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:480px){.folders{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.folder{position:relative;aspect-ratio:5/4;max-width:100%;border:0;background:#dcb874;border-radius:0 5px 5px 5px;box-shadow:0 5px 0 var(--kraft-edge),0 10px 18px rgba(60,35,10,.3);padding:1.6rem .6rem .6rem;text-align:left;display:flex;flex-direction:column;justify-content:space-between;transition:transform .15s}
+.folder::before{content:"";position:absolute;top:-13px;left:0;width:48%;height:14px;background:#dcb874;border-radius:5px 5px 0 0}
+.folder .no{font-family:var(--stamp);font-size:1.5rem;color:rgba(36,29,22,.75);line-height:1;position:absolute;top:.35rem;left:.6rem}
+.folder .ti{font-family:var(--display);font-size:.92rem;line-height:1.2}
+.folder .st{font-family:var(--label);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.folder:not([disabled]):hover{transform:translateY(-4px) rotate(-1deg)}
+.folder[disabled]{cursor:not-allowed;filter:saturate(.5) brightness(.9)}
+.folder .seal{position:absolute;right:-8px;bottom:-12px;width:42px;height:42px}
+.folder .mini{position:absolute;right:.2rem;top:.6rem;font-size:.75rem;border-width:3px;padding:0 .3rem}
+.folder.active{box-shadow:0 5px 0 var(--kraft-edge),0 0 0 3px var(--red),0 10px 18px rgba(60,35,10,.3)}
+.cta{font-family:var(--label);font-weight:600;letter-spacing:.12em;text-transform:uppercase;background:var(--red);color:#fff;border:0;padding:.65rem 1.2rem;font-size:.95rem;box-shadow:3px 3px 0 var(--tag)}
+.cta:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--tag)}
+.cta:disabled{background:var(--ink-soft);cursor:not-allowed;box-shadow:none}
+.ghost{font-family:var(--label);font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:transparent;border:2px solid var(--ink);padding:.4rem .8rem;font-size:.82rem}
+.ghost:hover{background:var(--ink);color:var(--paper)}
+
+.wanted{background:#fbf6e8;padding:.8rem .8rem 1rem;text-align:center;transform:rotate(-2deg);box-shadow:0 6px 14px rgba(60,35,10,.25);display:grid;gap:.4rem;justify-items:center}
+.wanted .w{font-family:var(--stamp);font-size:2rem;color:var(--red);line-height:1;letter-spacing:.08em}
+.wanted svg{width:120px;height:140px;background:#d9d2c0}
+
+/* case file */
+.casehead{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1rem 2rem;align-items:start}
+@media (max-width:640px){.casehead{grid-template-columns:1fr}}
+.casehead h1{font-size:clamp(1.8rem,5.5vw,2.8rem)}
+.casehead .meta{display:flex;flex-wrap:wrap;gap:.3rem 1.2rem;margin-top:.6rem;font-size:.9rem;color:var(--ink-soft)}
+.casehead .meta b{color:var(--ink)}
+.classified{font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;margin-top:.5rem}
+.tabs{display:flex;flex-wrap:wrap;gap:.3rem;padding-left:.5rem;margin-top:1.4rem}
+.tabs button{font-family:var(--label);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:.82rem;background:#c9a76c;border:0;border-radius:7px 7px 0 0;padding:.5rem .9rem;color:var(--ink)}
+.tabs button:hover{background:#d7b77e}
+.tabs button[aria-selected="true"]{background:var(--paper-2);box-shadow:0 3px 0 var(--paper-2)}
+.panel{background:var(--paper-2);padding:clamp(1rem,3vw,1.6rem);border-radius:0 4px 4px 4px;min-height:320px}
+.two{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:1.6rem;align-items:start}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+.box{border:1.5px solid var(--ink);background:var(--paper);padding:1rem 1.1rem;display:grid;gap:.7rem;align-content:start}
+.box > .lbl{justify-self:start;margin-top:-1.6rem}
+.timeline{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}
+.timeline li{display:grid;grid-template-columns:5.2rem minmax(0,1fr);gap:.6rem;font-size:.95rem}
+.timeline time{font-weight:700;font-variant-numeric:tabular-nums;color:var(--red)}
+
+.pols{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));gap:2rem 1.2rem;padding-top:1rem}
+.pol{background:#fbf8ef;padding:.6rem .6rem .9rem;box-shadow:0 6px 14px rgba(60,35,10,.28);position:relative;display:grid;gap:.45rem;align-content:start}
+.pol:nth-child(3n+1){transform:rotate(-1.6deg)} .pol:nth-child(3n+2){transform:rotate(1.2deg)} .pol:nth-child(3n){transform:rotate(-.6deg)}
+.pol::before{content:"";position:absolute;top:-12px;left:50%;width:70px;height:24px;background:var(--tape);transform:translateX(-50%) rotate(-3deg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.pol .ph{aspect-ratio:1/1;max-width:100%;width:100%;display:block;background:#d8d0bd}
+.pol .nm{justify-self:center;margin-top:-1.3rem;position:relative}
+.pol dl{margin:0;display:grid;gap:.3rem;font-size:.86rem}
+.pol dt{font-family:var(--label);font-weight:500;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+.pol dd{margin:0}
+.pol .q{font-family:var(--hand);font-size:.98rem;line-height:1.35;border-top:1px dashed #b9a988;padding-top:.4rem}
+.pol .letter{position:absolute;top:.9rem;left:.9rem;width:2rem;height:2rem;border-radius:50%;background:var(--tag);color:var(--paper);display:grid;place-items:center;font-family:var(--label);font-weight:600;z-index:1}
+
+/* dataset */
+.files{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
+.files button{border:1.5px solid var(--ink);background:var(--paper);padding:.3rem .7rem;font-size:.85rem}
+.files button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.tools{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:.8rem}
+.tools input,.tools select{border:1.5px solid var(--ink);background:#fffaf0;padding:.4rem .6rem;font-size:.9rem;min-width:0}
+.tools input{flex:1 1 220px}
+.seg{display:inline-flex;border:1.5px solid var(--ink)}
+.seg button{border:0;background:#fffaf0;padding:.4rem .7rem;font-size:.82rem;font-family:var(--label);letter-spacing:.08em;text-transform:uppercase}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.gridwrap{overflow-x:auto;border:1.5px solid var(--ink);background:#fffaf0;max-height:460px;overflow-y:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem;font-variant-numeric:tabular-nums}
+th{position:sticky;top:0;background:var(--tag);color:var(--paper);text-align:left;font-weight:400;padding:0;white-space:nowrap}
+th button{all:unset;cursor:pointer;display:block;padding:.45rem .6rem;width:100%;box-sizing:border-box}
+th button:focus-visible{outline:2px solid var(--crime);outline-offset:-2px}
+td{padding:.35rem .6rem;border-top:1px solid #e1d4b3;white-space:nowrap}
+tr:nth-child(even) td{background:rgba(201,166,108,.1)}
+mark{background:var(--hilite);color:inherit}
+.dsnote{font-size:.85rem;margin-top:.6rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:.8rem}
+.stats .box{gap:.25rem;font-size:.85rem}
+.stats .box b{font-family:var(--label);letter-spacing:.06em}
+
+/* notepad */
+.pad{background:#fffdf5;border:1px solid #d6c9a5;position:relative;padding:2.2rem 1rem 1rem 3rem;box-shadow:0 6px 16px rgba(60,35,10,.2)}
+.pad::before{content:"";position:absolute;top:.6rem;left:1rem;right:1rem;height:14px;background:radial-gradient(circle,var(--ink) 0 4px,transparent 5px) 0 0/22px 14px repeat-x}
+.pad::after{content:"";position:absolute;top:0;bottom:0;left:2.3rem;border-left:1.5px solid rgba(176,42,32,.45)}
+.pad textarea{width:100%;min-height:340px;border:0;background:repeating-linear-gradient(transparent 0 29px,rgba(70,110,160,.25) 29px 30px);line-height:30px;font-family:var(--hand);font-size:1.15rem;resize:vertical;padding:0}
+.pad textarea:focus-visible{outline:none}
+
+/* findings */
+.slips{display:grid;gap:1.1rem}
+.slip{background:var(--paper);border:1.5px dashed var(--ink-soft);padding:1rem 1.1rem;display:grid;gap:.6rem;position:relative}
+.slip .qh{display:flex;gap:.8rem;align-items:baseline;justify-content:space-between;flex-wrap:wrap}
+.slip .qh b{font-family:var(--label);font-weight:600;letter-spacing:.1em;color:var(--red);text-transform:uppercase;font-size:.85rem}
+.slip .qt{font-size:1rem}
+.slip input[type=text]{border:0;border-bottom:2px solid var(--ink);background:transparent;font-family:var(--hand);font-size:1.25rem;padding:.1rem .2rem;width:min(100%,22rem)}
+.slip input[type=text]:focus-visible{outline:none;background:rgba(243,215,126,.35)}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem 1.2rem}
+.opts label{display:flex;gap:.4rem;align-items:center;cursor:pointer}
+.opts input{accent-color:var(--red);width:1.05rem;height:1.05rem}
+.hint{font-size:.9rem;background:rgba(243,215,126,.45);padding:.5rem .7rem;border-left:4px solid var(--crime)}
+.hintbtn{background:none;border:0;padding:0;text-decoration:underline;font-size:.85rem;color:var(--ink-soft)}
+.verdict{font-family:var(--label);font-weight:600;letter-spacing:.1em;font-size:.8rem;text-transform:uppercase}
+.verdict.ok{color:var(--green)} .verdict.no{color:var(--red)}
+.submitbar{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;background:var(--tag);color:var(--paper);padding:.9rem 1rem;margin-top:1.2rem}
+.attempts{display:flex;gap:.4rem;align-items:center;font-size:.85rem}
+.attempts i{width:14px;height:14px;border-radius:50%;border:2px solid var(--paper);display:inline-block}
+.attempts i.used{background:var(--red);border-color:var(--red)}
+.result{margin-top:1.2rem;display:flex;flex-wrap:wrap;gap:1.4rem;align-items:center}
+.closed{position:relative;padding:1.2rem 0}
+
+/* standings */
+.rules{list-style:none;margin:0;padding:0;display:grid;gap:.8rem;counter-reset:r}
+.rules li{display:grid;grid-template-columns:2.6rem minmax(0,1fr);gap:.9rem;align-items:center}
+.rules li::before{counter-increment:r;content:counter(r);width:2.6rem;height:2.6rem;border-radius:50%;background:var(--tag);color:var(--paper);display:grid;place-items:center;font-family:var(--stamp)}
+.rules h3{font-size:1.1rem}
+.record{width:100%;border:1.5px solid var(--ink);background:#fffaf0}
+.record td{white-space:normal}
+footer{text-align:center;font-size:.8rem;color:var(--ink);padding-block:1rem 2rem}
+.toast{position:fixed;left:50%;bottom:calc(1rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--tag);color:var(--paper);padding:.6rem 1rem;font-size:.9rem;z-index:20}
+.sync{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;font-family:var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+.sync i{width:9px;height:9px;border-radius:50%;background:var(--ink-soft);display:inline-block}
+.sync.on i{background:var(--green)} .sync.err i,.sync.denied i{background:var(--red)}
+.strip{display:flex;gap:3px}
+.strip i{width:14px;height:18px;border:1.5px solid var(--ink-soft);display:inline-block;background:#fffaf0}
+.strip i.s{background:var(--green);border-color:var(--green)} .strip i.c{background:#9a8f7c;border-color:#9a8f7c} .strip i.o{border-color:var(--red);border-width:2.5px}
+.adm td{vertical-align:middle}
+.adm .nm{font-family:var(--hand);font-size:1.15rem}
+.rk{font-family:var(--stamp);font-size:1.1rem}
+.live{color:var(--green);font-weight:700}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23b02a20'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-family='Georgia' font-size='20' fill='%23f4ecd8'%3EH%3C/text%3E%3C/svg%3E">
 </head>
 <body>
-  <div class="container wide">
-    <h1>🧰 CSE Toolbox</h1>
-    <p>17 mini apps built by the CSE Hackathon Bootcamp class</p>
 
-    <div class="grid">
-      <a href="clock.html">⏰ Digital Clock</a>
-      <a href="counter.html">🔢 Counter</a>
-      <a href="calculator.html">➗ Calculator</a>
-      <a href="bmi.html">⚖️ BMI Calculator</a>
-      <a href="age.html">🎂 Age Calculator</a>
-      <a href="dice.html">🎲 Dice Roller</a>
-      <a href="coin.html">🪙 Coin Toss</a>
-      <a href="temperature.html">🌡️ Temperature</a>
-      <a href="quotes.html">💬 Quotes</a>
-      <a href="todo.html">✅ To-Do List</a>
-      <a href="stopwatch.html">⏱️ Stopwatch</a>
-      <a href="password.html">🔐 Password Maker</a>
-      <a href="charcount.html">🔤 Character Counter</a>
-      <a href="table.html">✖️ Times Table</a>
-      <a href="guess.html">🎯 Guess the Number</a>
-      <a href="mood.html">😊 Mood Picker</a>
-      <a href="bill.html">🧾 Bill Splitter</a>
-    </div>
+<div class="tape" aria-hidden="true"><span id="tapeText"></span></div>
+<header class="mast">
+  <div class="wrap">
+    <a class="brand" href="#desk">
+      <span class="fp" id="fpMast" aria-hidden="true"></span>
+      <span><span class="box">HERALYTICS</span><small>Central Crime Investigation Division</small></span>
+    </a>
+    <nav aria-label="Main">
+      <a href="#desk" data-nav="desk">Case desk</a>
+      <a href="#standings" data-nav="standings">Standings</a>
+      <a href="#admin" data-nav="admin" id="adminLink" hidden>Organiser desk</a>
+    </nav>
   </div>
+</header>
+<main class="wrap" id="app"></main>
+<footer>HERALYTICS · ACM-W Sathyabama · All crimes, suspects and records in this game are fictional. · <a href="#admin" style="color:inherit">Organiser login</a></footer>
+<div class="toast" id="toast" hidden role="status"></div>
+<script type="module">
+/* ===== FIREBASE SETTINGS (organiser desk) ===== */
+// Firebase settings for the organiser desk.
+// Leave as-is to run in practice mode (progress stays in each player's browser).
+// To turn on the organiser desk, paste the config object from
+// Firebase console > Project settings > Your apps > Web app.
+const FIREBASE_CONFIG = {
+  apiKey: "PASTE_YOUR_API_KEY",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "1:000000000000:web:0000000000000000"
+};
+
+/* ===== CASE FILES ===== */
+// HERALYTICS case files. Add Cases 03-10 here in the same shape as Case 01.
+// Answers are stored as btoa(reversed answer with spaces removed, lowercased).
+// Generate one in the browser console: btoa("your answer".toLowerCase().replace(/\s+/g,"").split("").reverse().join(""))
+/* ---------- CASE DATA ---------- */
+const PTS = 14, HINT_COST = 3, MAX_ATTEMPTS = 5;
+const CASES = [
+ { id:1, title:"The Midnight Murder", place:"Kovalam Ridge Observatory", date:"14 Mar 1987", time:"23:45 – 00:05",
+   crime:"Homicide",
+   summary:"Dr. Meera Kalyan, senior astronomer at Kovalam Ridge Observatory, was found dead inside the telescope dome at 00:26. The dome door had been opened with a manual override. Five people held active badges on the site that night.",
+   details:"Night guard Leela Thomas found the body during her rounds. The coroner places death between 23:45 and 00:05. The telescope's observation log stops mid-entry at 23:49. Nothing was taken from the dome, but Dr. Kalyan's draft report on the observatory's funding audit is missing from her desk.",
+   timeline:[["23:02","Dr. Kalyan badges into Dome 1 for her night session."],["23:24","Funding director Vikram Sethi arrives through the main gate."],["23:40","Car park camera feed drops to static."],["23:49","Last entry in the telescope observation log."],["00:10","Car park camera feed returns."],["00:26","Guard Leela Thomas finds the body in Dome 1."]],
+   suspects:[
+    {name:"Vikram Sethi",role:"Funding director",badge:"BADGE-881",alibi:"Sat in my car in the car park on a long phone call from 23:30 until about 00:15.",motive:"Dr. Kalyan's audit report flagged missing grant money under his signature.",tone:"#7a5a3a",shape:2},
+    {name:"Priya Nair",role:"Research fellow",badge:"BADGE-412",alibi:"I left through the east gate at 23:30 and went straight home.",motive:"Passed over for co-authorship on Dr. Kalyan's comet paper.",tone:"#4d3b2a",shape:1},
+    {name:"Arjun Rao",role:"Night technician",badge:"BADGE-207",alibi:"I was in the lobby control room the whole night watching the instrument feeds.",motive:"Was warned by Dr. Kalyan about unauthorised server access.",tone:"#5c4630",shape:0},
+    {name:"Leela Thomas",role:"Security guard",badge:"BADGE-118",alibi:"Patrolling the east wing. My badge stopped working after midnight so I had to override the door.",motive:"None known. Found the body.",tone:"#3e3226",shape:1},
+    {name:"Dev Menon",role:"Graduate student",badge:"BADGE-305",alibi:"In the library annex writing my thesis. I stepped out once for tea.",motive:"Dr. Kalyan was about to fail his thesis chapter.",tone:"#6b5238",shape:0}
+   ],
+   evidence:[
+    {k:"A",title:"Tampered door seal",art:"door",note:"Dome 1 keypad shows a manual override. The override log is stored in the access records."},
+    {k:"B",title:"Shoe impression",art:"shoe",note:"Size 10 leather sole print in the dome dust. Formal shoe, not a work boot."},
+    {k:"C",title:"Telescope log",art:"log",note:"Final entry cut off mid-sentence at 23:49."},
+    {k:"D",title:"Car park camera",art:"static",note:"Feed lost 23:40 – 00:10. Nobody's car alibi can be checked on video."}
+   ],
+   datasets:[
+    {file:"access_log.csv",cols:["timestamp","badge_id","holder","door","direction","override_used"],rows:`21:58:02,BADGE-412,Priya Nair,DOME-1,IN,FALSE
+22:05:13,BADGE-305,Dev Menon,LIBRARY,IN,FALSE
+22:10:40,BADGE-207,Arjun Rao,SERVER-RM,IN,TRUE
+22:31:02,BADGE-207,Arjun Rao,SERVER-RM,OUT,FALSE
+22:34:48,BADGE-207,Arjun Rao,LOBBY,IN,FALSE
+22:48:19,BADGE-118,Leela Thomas,EAST-2,IN,FALSE
+23:02:55,BADGE-901,Meera Kalyan,DOME-1,IN,FALSE
+23:11:37,BADGE-412,Priya Nair,DOME-1,OUT,FALSE
+23:24:06,BADGE-881,Vikram Sethi,MAIN-GATE,IN,FALSE
+23:29:44,BADGE-412,Priya Nair,EAST-2,IN,FALSE
+23:38:04,BADGE-118,Leela Thomas,EAST-2,OUT,FALSE
+23:41:15,BADGE-305,Dev Menon,LIBRARY,OUT,FALSE
+23:43:27,BADGE-305,Dev Menon,LIBRARY,IN,FALSE
+23:47:51,BADGE-881,Vikram Sethi,DOME-1,IN,TRUE
+23:52:09,BADGE-412,Priya Nair,EAST-GATE,OUT,FALSE
+23:58:30,BADGE-881,Vikram Sethi,DOME-1,OUT,FALSE
+00:01:12,BADGE-881,Vikram Sethi,MAIN-GATE,OUT,FALSE
+00:20:47,BADGE-118,Leela Thomas,EAST-2,IN,TRUE
+00:26:05,BADGE-118,Leela Thomas,DOME-1,IN,FALSE`},
+    {file:"phone_records.csv",cols:["caller","number","call_start","call_end","duration_min","tower"],rows:`Vikram Sethi,98401 12233,23:31:10,23:44:02,13,OBS-RIDGE
+Priya Nair,94440 55871,23:55:40,23:58:12,3,EAST-ROAD
+Arjun Rao,90031 66420,22:15:05,22:19:30,4,OBS-RIDGE
+Dev Menon,99620 18877,23:41:20,23:42:55,2,OBS-RIDGE
+Leela Thomas,97100 40213,00:27:10,00:31:48,5,OBS-RIDGE
+Vikram Sethi,98401 12233,00:03:44,00:06:01,2,COAST-HWY`}
+   ],
+   questions:[
+    {t:"mc",q:"Who killed Dr. Meera Kalyan?",opts:["Vikram Sethi","Priya Nair","Arjun Rao","Leela Thomas","Dev Menon"],a:"aWh0ZXNtYXJraXY=",hint:"Whose badge opened Dome 1 inside the crime window?"},
+    {t:"text",q:"Which badge ID opened Dome 1 with a manual override?",ph:"e.g. BADGE-000",a:"MTg4LWVnZGFi",hint:"Filter the override_used column to TRUE."},
+    {t:"num",q:"How many override events appear in the access log in total?",ph:"number",a:"Mw==",hint:"Count every TRUE in override_used, not only those at Dome 1."},
+    {t:"text",q:"At exactly what time did the killer enter Dome 1? (hh:mm:ss)",ph:"hh:mm:ss",a:"MTU6NzQ6MzI=",hint:"Use the timestamp on the override row at DOME-1."},
+    {t:"mc",q:"Which other suspect lied about where they were, but was not in the dome?",opts:["Priya Nair","Arjun Rao","Leela Thomas","Dev Menon"],a:"cmlhbmF5aXJw",hint:"Compare each alibi time with the exit times in the log."}
+   ]},
+ { id:2, title:"The Marina Diamond Heist", place:"Marina Gem Exchange vault", date:"02 Apr 1987", time:"09:00 – 10:05",
+   crime:"Theft",
+   summary:"A consignment of uncut diamonds was weighed into the Marina Gem Exchange vault in twelve sealed crates. At the evening audit one crate came up short. The stones were weighed, not counted, so the scales are the only witness.",
+   details:"Every crate has the same 2.100 kg tare. Net weight on the scale should match the declared net weight on the manifest. Three scales were in use and three handlers moved the crates.",
+   timeline:[["09:02","First crate weighed on scale SC-1."],["09:44","Crate CR-0419 weighed on scale SC-2."],["10:01","Last crate weighed and moved to the vault."],["18:30","Evening audit flags a shortfall."]],
+   suspects:[
+    {name:"Sameer Khan",role:"Handler H-07",badge:"H-07",alibi:"I only carried crates. I never opened a single one.",motive:"Gambling debts, according to a coworker.",tone:"#5c4630",shape:0},
+    {name:"Anita D'Souza",role:"Vault manager",badge:"VM-01",alibi:"I was in the office signing manifests until noon.",motive:"Holds the master manifest and could change declared weights.",tone:"#4d3b2a",shape:1},
+    {name:"Rohan Pillai",role:"Handler H-05",badge:"H-05",alibi:"My crates always read a bit heavy. That scale is broken, not me.",motive:"Recently denied a raise.",tone:"#7a5a3a",shape:2},
+    {name:"Kavya Iyer",role:"Insurance assessor",badge:"INS-3",alibi:"I arrived at 11:00, after the weighing was over.",motive:"Her firm pays out if the loss is accepted.",tone:"#3e3226",shape:1}
+   ],
+   evidence:[
+    {k:"A",title:"Resealed crate",art:"crate",note:"Crate CR-0419 carries a wax seal in a slightly different red from the others."},
+    {k:"B",title:"Calibration sticker",art:"sticker",note:"Scale SC-3's calibration sticker expired last month."},
+    {k:"C",title:"Locker 7 glove",art:"glove",note:"A cotton glove with fine stone dust, found in the handlers' locker room."}
+   ],
+   datasets:[
+    {file:"scale_log.csv",cols:["crate_id","scale","time","handler","gross_kg","tare_kg","net_kg","declared_net_kg"],rows:`CR-0411,SC-1,09:02,H-03,6.512,2.100,4.412,4.412
+CR-0412,SC-2,09:07,H-07,5.880,2.100,3.780,3.780
+CR-0413,SC-1,09:11,H-03,6.250,2.100,4.150,4.150
+CR-0414,SC-3,09:15,H-05,7.004,2.100,4.904,4.902
+CR-0415,SC-2,09:20,H-07,6.640,2.100,4.540,4.540
+CR-0416,SC-3,09:26,H-05,5.932,2.100,3.832,3.830
+CR-0417,SC-1,09:31,H-03,6.118,2.100,4.018,4.018
+CR-0418,SC-2,09:36,H-05,6.075,2.100,3.975,3.975
+CR-0419,SC-2,09:44,H-07,6.308,2.100,4.208,4.250
+CR-0420,SC-3,09:49,H-03,6.402,2.100,4.302,4.300
+CR-0421,SC-1,09:55,H-05,5.760,2.100,3.660,3.660
+CR-0422,SC-2,10:01,H-07,6.990,2.100,4.890,4.890`}
+   ],
+   questions:[
+    {t:"text",q:"Which crate is short of its declared weight?",ph:"e.g. CR-0000",a:"OTE0MC1yYw==",hint:"Compare net_kg with declared_net_kg row by row."},
+    {t:"num",q:"How many grams are missing from that crate?",ph:"grams",a:"MjQ=",hint:"Declared minus measured net, then convert kg to grams."},
+    {t:"text",q:"Which handler ID weighed that crate?",ph:"e.g. H-00",a:"NzAtaA==",hint:"Read the handler column on the short crate's row."},
+    {t:"mc",q:"Who stole the diamonds?",opts:["Sameer Khan","Anita D'Souza","Rohan Pillai","Kavya Iyer"],a:"bmFoa3JlZW1hcw==",hint:"Match the handler ID to a suspect dossier."},
+    {t:"text",q:"Which scale reads consistently heavy because of calibration drift?",ph:"e.g. SC-0",a:"My1jcw==",hint:"Look for a scale where every crate is a little over its declared weight."}
+   ]},
+ {id:3,title:"Wire Fraud at Coastal Co-op",crime:"Fraud"},
+ {id:4,title:"The Stolen Exam Papers",crime:"Theft"},
+ {id:5,title:"Cyber Exfiltration",crime:"Data breach"},
+ {id:6,title:"The Flight Manifest",crime:"Smuggling"},
+ {id:7,title:"The Print Room Leak",crime:"Leak"},
+ {id:8,title:"Signal Lost",crime:"Sabotage"},
+ {id:9,title:"The Insider",crime:"Conspiracy"},
+ {id:10,title:"Unmasking ARCHITECT-ZERO",crime:"Mastermind"}
+];
+
+
+/* ===== GAME ===== */
+
+/* ---------- STATE ---------- */
+const KEY="heralytics-desk-v1";
+let S={name:"",start:null,end:null,cases:{},notes:{}};
+try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}queueSync()}
+function C(id){return S.cases[id]||(S.cases[id]={status:"open",attempts:0,hints:{},answers:{},score:0,results:null})}
+const done=id=>{const c=S.cases[id];return c&&(c.status==="solved"||c.status==="cold")};
+const unlocked=id=>id===1||done(id-1);
+const norm=s=>String(s??"").toLowerCase().replace(/\s+/g,"");
+const enc=s=>{try{return btoa(norm(s).split("").reverse().join(""))}catch(e){return ""}};
+function check(q,v){let x=v; if(q.t==="num"){const n=parseFloat(String(v).replace(/,/g,""));if(isNaN(n))return false;x=String(n)} return enc(x)===q.a}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,2600)}
+
+/* ---------- ART ---------- */
+function fingerprint(){let p="";for(let i=1;i<15;i++){const rx=3+i*2.6,ry=4+i*3.2;const da=`${6+((i*7)%9)} ${2+(i%3)}`;p+=`<ellipse cx="30" cy="38" rx="${rx}" ry="${ry}" fill="none" stroke="#241d16" stroke-width="1.5" stroke-dasharray="${da}" transform="rotate(${(i%2?-6:4)} 30 38)"/>`}
+ return `<svg viewBox="0 0 60 76" width="100%" height="100%"><clipPath id="fpc${Math.random().toString(36).slice(2,6)}"><ellipse cx="30" cy="38" rx="27" ry="35"/></clipPath>${p}</svg>`}
+function mugshot(s,i){const sh=[["M50 112c0-26 14-40 50-40s50 14 50 40","42","34"],["M44 112c2-24 18-38 56-38s54 14 56 38","40","38"],["M48 112c0-28 16-42 52-42s52 14 52 42","44","32"]][s.shape||0];
+ let lines="";for(let y=20;y<140;y+=12)lines+=`<line x1="0" x2="200" y1="${y}" y2="${y}" stroke="#a89d86" stroke-width="${y%36===20?1.4:.6}"/>`;
+ return `<svg class="ph" viewBox="0 0 200 200" role="img" aria-label="Mugshot silhouette of ${esc(s.name)}"><rect width="200" height="200" fill="#d8d0bd"/>${lines}<text x="6" y="32" font-family="Courier Prime,monospace" font-size="10" fill="#7d7260">6'</text><text x="6" y="80" font-family="Courier Prime,monospace" font-size="10" fill="#7d7260">5'</text><g transform="translate(0,62)"><path d="${sh[0]}" fill="${s.tone}"/></g><ellipse cx="100" cy="${78-+sh[2]/4}" rx="${sh[2]}" ry="${sh[1]}" fill="${s.tone}"/><rect x="62" y="150" width="76" height="30" fill="#241d16"/><text x="100" y="170" text-anchor="middle" font-family="Courier Prime,monospace" font-size="12" fill="#f4ecd8">${esc(s.badge)}</text></svg>`}
+const ART={
+ door:`<svg class="ph" viewBox="0 0 200 200" role="img" aria-label="Keypad with broken seal"><rect width="200" height="200" fill="#5d5448"/><rect x="60" y="30" width="80" height="130" rx="6" fill="#2b2620"/><rect x="72" y="42" width="56" height="20" fill="#7fae6a"/><text x="100" y="57" text-anchor="middle" font-size="11" font-family="Courier Prime" fill="#1c2a16">OVRD</text>${[0,1,2].map(r=>[0,1,2].map(c=>`<rect x="${74+c*18}" y="${72+r*20}" width="14" height="14" rx="2" fill="#a8a196"/>`).join("")).join("")}<path d="M50 120l100-30" stroke="#b02a20" stroke-width="6"/><path d="M98 104l6 14-12 2z" fill="#f4ecd8"/></svg>`,
+ shoe:`<svg class="ph" viewBox="0 0 200 200" role="img" aria-label="Shoe print in dust"><rect width="200" height="200" fill="#bfb39b"/><g fill="#5a4a39" opacity=".75" transform="rotate(-18 100 100)"><ellipse cx="100" cy="72" rx="30" ry="44"/><ellipse cx="100" cy="150" rx="22" ry="26"/></g><g stroke="#bfb39b" stroke-width="2" transform="rotate(-18 100 100)">${[50,60,70,80,90,100].map(y=>`<line x1="74" x2="126" y1="${y}" y2="${y}"/>`).join("")}</g><rect x="140" y="20" width="44" height="14" fill="#f4ecd8"/><text x="162" y="31" text-anchor="middle" font-size="10" font-family="Courier Prime">SZ 10</text></svg>`,
+ log:`<svg class="ph" viewBox="0 0 200 200" role="img" aria-label="Observation log page"><rect width="200" height="200" fill="#efe6cf"/>${[40,62,84,106,128].map((y,i)=>`<line x1="20" x2="180" y1="${y}" y2="${y}" stroke="#9fb3c8"/><text x="22" y="${y-5}" font-size="11" font-family="Kalam" fill="#2b3a56">${["23:12 Saturn, clear","23:26 M42 seeing 2.1","23:38 refocus","23:49 there is someo",""][i]}</text>`).join("")}<path d="M120 130q10 10 0 40" stroke="#2b3a56" fill="none"/></svg>`,
+ static:`<svg class="ph" viewBox="0 0 200 200" role="img" aria-label="Camera static"><filter id="st"><feTurbulence baseFrequency=".9" numOctaves="1"/><feColorMatrix type="saturate" values="0"/></filter><rect width="200" height="200" filter="url(#st)"/><rect x="10" y="10" width="86" height="18" fill="#000"/><text x="14" y="23" font-size="11" font-family="Courier Prime" fill="#ff5a4e">● FEED LOST</text><text x="190" y="190" text-anchor="end" font-size="11" font-family="Courier Prime" fill="#fff">CAM-04 23:40</text></svg>`,
+ crate:`<svg class="ph" viewBox="0 0 200 200" role="img" aria-label="Wooden crate with wax seal"><rect width="200" height="200" fill="#8b6a43"/>${[40,80,120,160].map(y=>`<rect x="20" y="${y-30}" width="160" height="34" fill="#b08a5a" stroke="#6b4f2e"/>`).join("")}<circle cx="100" cy="100" r="20" fill="#b8382b"/><circle cx="100" cy="100" r="12" fill="none" stroke="#e06a55"/><text x="100" y="185" text-anchor="middle" font-family="Courier Prime" font-size="14" fill="#f4ecd8">CR-0419</text></svg>`,
+ sticker:`<svg class="ph" viewBox="0 0 200 200" role="img" aria-label="Expired calibration sticker"><rect width="200" height="200" fill="#9aa0a4"/><rect x="40" y="60" width="120" height="80" fill="#f4ecd8" stroke="#241d16" stroke-width="2"/><text x="100" y="84" text-anchor="middle" font-family="Oswald" font-size="14">CALIBRATED</text><text x="100" y="106" text-anchor="middle" font-family="Courier Prime" font-size="13">SC-3</text><text x="100" y="126" text-anchor="middle" font-family="Courier Prime" font-size="11" fill="#b02a20">DUE: FEB 1987</text></svg>`,
+ glove:`<svg class="ph" viewBox="0 0 200 200" role="img" aria-label="Cotton glove"><rect width="200" height="200" fill="#6f6658"/><path d="M70 170V90q0-12 10-12v-30q0-10 9-10t9 10v-6q0-10 9-10t9 10v6q0-8 9-8t9 8v40l12-14q8-6 13 0t-2 14l-26 40v52z" fill="#efe9da" stroke="#c9bfa8" stroke-width="2"/>${[0,1,2,3,4,5,6,7].map(i=>`<circle cx="${92+((i*13)%30)}" cy="${60+i*9}" r="1.6" fill="#9cc"/>`).join("")}</svg>`
+};
+const sealSVG=`<svg class="seal" viewBox="0 0 42 42" aria-hidden="true"><circle cx="21" cy="21" r="19" fill="#9b2a1f"/><circle cx="21" cy="21" r="13" fill="none" stroke="#d76a5a" stroke-width="2"/><path d="M15 23v-4a6 6 0 0 1 12 0v4" fill="none" stroke="#f4ecd8" stroke-width="2.4"/><rect x="13" y="22" width="16" height="10" rx="2" fill="#f4ecd8"/></svg>`;
+const clipSVG=(l)=>`<svg class="clip" style="left:${l}" viewBox="0 0 20 60" aria-hidden="true"><path d="M6 50V12a4 4 0 0 1 8 0v36a7 7 0 0 1-14 0V8a10 10 0 0 1 20 0v38" fill="none" stroke="#8a8f94" stroke-width="2.2"/></svg>`;
+
+/* ---------- HELPERS ---------- */
+function elapsed(){if(!S.start)return 0;return Math.floor(((S.end||Date.now())-S.start)/1000)}
+function fmt(t){const h=String(Math.floor(t/3600)).padStart(2,"0"),m=String(Math.floor(t%3600/60)).padStart(2,"0"),s=String(t%60).padStart(2,"0");return `${h}:${m}:${s}`}
+function totals(){let solved=0,score=0,fails=0,closed=0;for(const k in S.cases){const c=S.cases[k];if(c.status==="solved")solved++;if(done(+k))closed++;score+=c.score||0;fails+=c.status==="solved"?c.attempts-1:c.attempts}return{solved,score,fails,closed}}
+function activeCase(){for(const c of CASES)if(!done(c.id))return c.id;return null}
+
+/* ---------- VIEWS ---------- */
+function viewDesk(){
+ const t=totals(),act=activeCase();
+ return `<div class="board">
+ <section class="sheet ring">${clipSVG("2rem")}
+  <div class="hello">
+   <div>
+    <span class="lbl">Investigation dossier desk</span>
+    <h1 style="margin-top:.8rem">Decode data. Uncover the truth.</h1>
+    <p style="margin-top:.6rem;max-width:58ch">Ten connected crimes. One shadow mastermind. Work each case file in order: read the briefing, test every alibi against the records, and submit five findings to close it.</p>
+    <div class="namefield"><label for="detName">Detective</label><input id="detName" placeholder="write your full name" value="${esc(S.name)}" maxlength="40" autocomplete="off"></div>
+    <div style="margin-top:.5rem">${syncChip()}</div>
+    <div style="margin-top:1.2rem;display:flex;gap:.8rem;flex-wrap:wrap">${act?`<button class="cta" id="startBtn" data-go="case-${act}" ${S.name.trim()?"":"disabled"}>${S.start?"Continue investigation":"Open first case"} →</button><span class="muted" id="nameNote" style="font-size:.85rem;align-self:center" ${S.name.trim()?"hidden":""}>Write your name first. It goes on your case file and the organisers' board.</span>`:`<button class="cta" data-go="standings">View your record →</button>`}</div>
+   </div>
+   <div class="wanted"><div class="w">WANTED</div>
+    <svg viewBox="0 0 120 140" role="img" aria-label="Unknown suspect silhouette"><rect width="120" height="140" fill="#d9d2c0"/><circle cx="60" cy="52" r="24" fill="#241d16"/><path d="M18 140c0-34 18-50 42-50s42 16 42 50z" fill="#241d16"/><text x="60" y="62" text-anchor="middle" font-family="Alfa Slab One" font-size="26" fill="#f4ecd8">?</text></svg>
+    <b style="letter-spacing:.14em">ARCHITECT-ZERO</b><span class="muted" style="font-size:.8rem">Identity unknown · unmask in Case 10</span></div>
+  </div>
+  <div class="metrics" role="list">
+   <div class="metric" role="listitem"><span>Cases solved</span><strong>${t.solved} / 10</strong></div>
+   <div class="metric" role="listitem"><span>Total score</span><strong>${t.score} pts</strong></div>
+   <div class="metric" role="listitem"><span>Investigation time</span><strong id="clock">${fmt(elapsed())}</strong></div>
+   <div class="metric" role="listitem"><span>Failed attempts</span><strong>${t.fails}</strong></div>
+  </div>
+ </section>
+ <section class="sheet">
+  <div class="secrow"><span class="lbl">The ten case folders</span><span class="muted" style="font-size:.88rem">Cases unseal in order. Close one to open the next.</span></div>
+  <div class="folders">${CASES.map(c=>{const st=S.cases[c.id]?.status,u=unlocked(c.id)&&!!S.name.trim();
+   const label=st==="solved"?"Solved & closed":st==="cold"?"Cold case":u?"Unsealed":"Sealed";
+   return `<button class="folder ${act===c.id?"active":""}" ${u?`data-go="case-${c.id}"`:"disabled"} aria-label="Case ${c.id}: ${u?esc(c.title):"sealed"}, ${label}">
+    <span class="no">${String(c.id).padStart(2,"0")}</span>
+    ${st==="solved"?`<span class="stamp red mini">Closed</span>`:st==="cold"?`<span class="stamp ink mini">Cold</span>`:""}
+    <span class="ti">${u?esc(c.title):"Classified"}</span><span class="st">${label}</span>${u?"":sealSVG}</button>`}).join("")}</div>
+ </section></div>`;
+}
+
+let tab="briefing", dsIdx=0, dsView="grid", dsQ="", dsCol="", dsSort={c:-1,d:1};
+function viewCase(id){
+ const c=CASES.find(x=>x.id===id);
+ if(!c||!unlocked(id))return `<section class="sheet"><span class="stamp red big">Sealed</span><p style="margin-top:1.2rem">Close the previous case to unseal this folder.</p><p style="margin-top:1rem"><button class="ghost" data-go="desk">Back to case desk</button></p></section>`;
+ if(!S.name.trim())return `<section class="sheet"><span class="lbl">Name required</span><h1 style="margin-top:.8rem;font-size:clamp(1.6rem,5vw,2.2rem)">Sign your case file first</h1><p style="margin-top:.8rem">Write your detective name on the case desk. The organisers use it to follow your progress.</p><p style="margin-top:1rem"><button class="cta" data-go="desk">Go to case desk</button></p></section>`;
+ if(!c.questions)return `<section class="sheet ring">${clipSVG("2rem")}<span class="lbl">Case ${String(id).padStart(2,"0")} · ${esc(c.crime)}</span><h1 style="margin-top:.8rem;font-size:clamp(1.8rem,5vw,2.6rem)">${esc(c.title)}</h1><p style="margin-top:1rem;max-width:60ch">This folder is unsealed, but HQ has not delivered the case file yet. Organisers load the briefing, suspects, evidence and datasets for this case before the event.</p><div style="margin-top:1.4rem"><span class="stamp ink">Awaiting file</span></div><p style="margin-top:1.4rem"><button class="ghost" data-go="desk">Back to case desk</button></p></section>`;
+ if(!S.start){S.start=Date.now();save()}
+ const st=C(id);
+ const tabs=[["briefing","Briefing"],["suspects","Suspects"],["evidence","Evidence"],["datasets","Datasets"],["notes","Scratchpad"],["findings","Findings"]];
+ return `<section class="sheet">${clipSVG("calc(100% - 4rem)")}
+  <div class="casehead"><div>
+   <span class="lbl">Case file No. HX-C${String(id).padStart(2,"0")}</span>
+   <h1 style="margin-top:.7rem">${esc(c.title)}</h1>
+   <div class="meta"><span>Place <b>${esc(c.place)}</b></span><span>Date <b>${esc(c.date)}</b></span><span>Crime window <b>${esc(c.time)}</b></span></div>
+   <div class="classified">★ Classified information · for authorised detectives only ★</div></div>
+   <div>${st.status==="solved"?`<span class="stamp red big">Case closed</span>`:st.status==="cold"?`<span class="stamp ink big">Cold case</span>`:`<span class="stamp red">Top secret</span>`}</div>
+  </div>
+  <div class="tabs" role="tablist">${tabs.map(([k,l],i)=>`<button role="tab" id="tab-${k}" aria-selected="${tab===k}" aria-controls="panel" data-tab="${k}">${i+1} · ${l}</button>`).join("")}</div>
+  <div class="panel" id="panel" role="tabpanel" aria-labelledby="tab-${tab}">${panel(c,st)}</div>
+ </section>`;
+}
+function panel(c,st){
+ if(tab==="briefing")return `<div class="two">
+  <div style="display:grid;gap:1.6rem;padding-top:.6rem">
+   <div class="box"><span class="lbl">Summary</span><p>${esc(c.summary)}</p><p class="muted">${esc(c.details)}</p></div>
+   <div class="box"><span class="lbl">Reconstruction timeline</span><ol class="timeline">${c.timeline.map(([t,e])=>`<li><time>${t}</time><span>${esc(e)}</span></li>`).join("")}</ol></div>
+  </div>
+  <div class="casecard" style="margin-top:.6rem"><h3>Case file</h3><div><b>Date</b>${esc(c.date)}</div><div><b>Window</b>${esc(c.time)}</div><div><b>Place</b>${esc(c.place)}</div><div><b>Crime</b>${esc(c.crime)}</div><div><b>Suspects</b>${c.suspects.length}</div><p class="hand" style="margin-top:.4rem;font-size:1.05rem;color:var(--red)">Note the crime window before you touch the data.</p></div>
+ </div>`;
+ if(tab==="suspects")return `<p class="muted" style="font-size:.9rem">Treat every alibi as a claim to test against the datasets.</p><div class="pols">${c.suspects.map((s,i)=>`<article class="pol">${mugshot(s,i)}<span class="lbl nm">${esc(s.name)}</span><dl><div><dt>Role</dt><dd>${esc(s.role)}</dd></div><div><dt>Motive</dt><dd>${esc(s.motive)}</dd></div></dl><p class="q">“${esc(s.alibi)}”</p></article>`).join("")}</div>`;
+ if(tab==="evidence")return `<p class="muted" style="font-size:.9rem">Physical items often name the badge, crate or time you then look up in the datasets.</p><div class="pols">${c.evidence.map(e=>`<article class="pol"><span class="letter">${e.k}</span>${ART[e.art]}<span class="lbl nm">${esc(e.title)}</span><p class="q">${esc(e.note)}</p></article>`).join("")}</div>`;
+ if(tab==="datasets")return datasetPanel(c);
+ if(tab==="notes")return `<div class="pad"><label class="sr" for="notes">Detective scratchpad</label><textarea id="notes" placeholder="Alibi times, suspicious IDs, deductions…">${esc(S.notes[c.id]||"")}</textarea></div><p class="muted" style="font-size:.85rem;margin-top:.8rem">Saves automatically in this browser. Keep working on the same device.</p>`;
+ return findingsPanel(c,st);
+}
+function datasetPanel(c){
+ const ds=c.datasets[dsIdx]||c.datasets[0];
+ let rows=ds.rows.trim().split("\n").map(r=>r.split(","));
+ const q=dsQ.trim().toLowerCase();
+ if(q)rows=rows.filter(r=>(dsCol===""?r:[r[+dsCol]]).some(v=>v.toLowerCase().includes(q)));
+ if(dsSort.c>=0){const k=dsSort.c;rows.sort((a,b)=>{const x=a[k],y=b[k],nx=parseFloat(x),ny=parseFloat(y);const r=!isNaN(nx)&&!isNaN(ny)&&/^[\d.\-]+$/.test(x)?nx-ny:x.localeCompare(y);return r*dsSort.d})}
+ const hl=v=>{if(!q)return esc(v);const i=v.toLowerCase().indexOf(q);return i<0?esc(v):esc(v.slice(0,i))+"<mark>"+esc(v.slice(i,i+q.length))+"</mark>"+esc(v.slice(i+q.length))};
+ let body;
+ if(dsView==="grid"){
+  body=`<div class="gridwrap"><table><thead><tr>${ds.cols.map((h,i)=>`<th scope="col" aria-sort="${dsSort.c===i?(dsSort.d>0?"ascending":"descending"):"none"}"><button data-sort="${i}">${esc(h)} ${dsSort.c===i?(dsSort.d>0?"▲":"▼"):""}</button></th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(v=>`<td>${hl(v)}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="${ds.cols.length}">No records match “${esc(dsQ)}”.</td></tr>`}</tbody></table></div>`;
+ }else{
+  body=`<div class="stats">${ds.cols.map((h,i)=>{const vals=rows.map(r=>r[i]);const nums=vals.map(Number).filter(n=>!isNaN(n));const isNum=nums.length===vals.length&&vals.length&&vals.every(v=>/^[\d.\-]+$/.test(v));
+   const uniq=[...new Set(vals)];
+   return `<div class="box"><b>${esc(h)}</b><span>Records: ${vals.length} · Missing: ${vals.filter(v=>v==="").length}</span>${isNum?`<span>Min ${Math.min(...nums)} · Max ${Math.max(...nums)}</span><span>Average ${(nums.reduce((a,b)=>a+b,0)/nums.length).toFixed(3)}</span>`:`<span>Distinct values: ${uniq.length}</span>${uniq.length<=6?`<span class="muted">${uniq.map(u=>`${esc(u)} (${vals.filter(v=>v===u).length})`).join(", ")}</span>`:""}`}</div>`}).join("")}</div>`;
+ }
+ return `<div class="files" role="group" aria-label="Dataset files">${c.datasets.map((d,i)=>`<button aria-pressed="${i===dsIdx}" data-ds="${i}">${esc(d.file)}</button>`).join("")}</div>
+ <div class="tools"><label class="sr" for="dsq">Search records</label><input id="dsq" type="search" placeholder="Search IDs, times, names…" value="${esc(dsQ)}">
+  <label class="sr" for="dscol">Column</label><select id="dscol"><option value="">All columns</option>${ds.cols.map((h,i)=>`<option value="${i}" ${String(i)===dsCol?"selected":""}>${esc(h)}</option>`).join("")}</select>
+  <div class="seg" role="group" aria-label="View"><button aria-pressed="${dsView==="grid"}" data-view="grid">Grid</button><button aria-pressed="${dsView==="stats"}" data-view="stats">Statistics</button></div>
+  <button class="ghost" data-dlcsv="1">Download CSV</button><button class="ghost" data-copy="1">Copy</button></div>
+ ${body}<p class="dsnote muted">${rows.length} of ${ds.rows.trim().split("\n").length} records shown${dsSort.c>=0?` · sorted by ${esc(ds.cols[dsSort.c])}`:""}. Click a column header to sort.</p>`;
+}
+function findingsPanel(c,st){
+ const locked=st.status!=="open";
+ const pts=c.questions.reduce((a,_,i)=>a+PTS-(st.hints[i]?HINT_COST:0),0);
+ return `<form id="findings" novalidate><div class="slips">${c.questions.map((q,i)=>{const v=st.answers[i]??"";const r=st.results?.[i];
+  const inp=q.t==="mc"?`<div class="opts" role="radiogroup" aria-labelledby="q${i}">${q.opts.map((o,j)=>`<label><input type="radio" name="a${i}" id="a${i}-${j}" value="${esc(o)}" ${v===o?"checked":""} ${locked?"disabled":""}>${esc(o)}</label>`).join("")}</div>`
+   :`<label class="sr" for="a${i}">Answer</label><input type="text" id="a${i}" name="a${i}" value="${esc(v)}" placeholder="${esc(q.ph||"")}" autocomplete="off" ${locked?"disabled":""}>`;
+  return `<div class="slip"><div class="qh"><b id="q${i}">Finding ${i+1} · ${q.t==="mc"?"Multiple choice":q.t==="num"?"Numeric":"Text"}</b>${r!=null&&st.status==="open"?`<span class="verdict ${r?"ok":"no"}">${r?"Holds up":"Contradicts the data"}</span>`:""}<span class="muted" style="font-size:.82rem">${PTS-(st.hints[i]?HINT_COST:0)} pts</span></div>
+   <p class="qt">${esc(q.q)}</p>${inp}
+   ${st.hints[i]?`<p class="hint"><b>Field hint:</b> ${esc(q.hint)}</p>`:locked?"":`<button type="button" class="hintbtn" data-hint="${i}">Unlock field hint (−${HINT_COST} pts)</button>`}</div>`}).join("")}</div>
+ ${st.status==="solved"?`<div class="result"><span class="stamp red big slam">Case closed</span><div><p><b>${st.score} points</b> added to your record.</p>${CASES[c.id]?`<p style="margin-top:.8rem"><button type="button" class="cta" data-go="case-${c.id+1}">Proceed to next case →</button></p>`:""}</div></div>`
+ :st.status==="cold"?`<div class="result"><span class="stamp ink big">Cold case</span><div><p>Five attempts used. No points for this case. The next folder is unsealed.</p>${CASES[c.id]?`<p style="margin-top:.8rem"><button type="button" class="cta" data-go="case-${c.id+1}">Proceed to next case →</button></p>`:""}</div></div>`
+ :`<div class="submitbar"><div class="attempts" aria-label="${st.attempts} of ${MAX_ATTEMPTS} attempts used">Attempts ${[...Array(MAX_ATTEMPTS)].map((_,i)=>`<i class="${i<st.attempts?"used":""}"></i>`).join("")}</div><span>Worth ${pts} pts now</span><button class="cta" type="submit">Submit evidence findings</button></div>`}
+ </form>`;
+}
+function viewStandings(){
+ const t=totals();
+ return `<div class="board"><section class="sheet ring">${clipSVG("2rem")}
+  <span class="lbl">Official standings</span><h1 style="margin-top:.8rem;font-size:clamp(1.8rem,5vw,2.6rem)">How the winner is decided</h1>
+  <p style="margin-top:.6rem;max-width:60ch">Detectives are ranked by these rules, in this order. A later rule only applies when everything above it is tied.</p>
+  <ol class="rules" style="margin-top:1.4rem">
+   <li><div><h3>Finishers first</h3><p class="muted">Anyone who closes all 10 cases ranks above anyone who has not.</p></div></li>
+   <li><div><h3>Most cases solved</h3><p class="muted">More solved cases ranks higher.</p></div></li>
+   <li><div><h3>Shortest elapsed time</h3><p class="muted">Among finishers, the fastest time wins.</p></div></li>
+   <li><div><h3>Highest total score</h3><p class="muted">Breaks a tie when times are identical.</p></div></li>
+   <li><div><h3>Fewest errors</h3><p class="muted">Fewest failed submissions breaks any tie left.</p></div></li>
+  </ol></section>
+  <section class="sheet"><div class="secrow"><span class="lbl">Your record</span><span class="hand" style="font-size:1.3rem">${esc(S.name||"Unnamed detective")}</span></div>
+  <div class="gridwrap" style="max-height:none"><table class="record"><thead><tr><th scope="col" style="padding:.45rem .6rem">Case</th><th scope="col" style="padding:.45rem .6rem">Status</th><th scope="col" style="padding:.45rem .6rem">Attempts</th><th scope="col" style="padding:.45rem .6rem">Hints</th><th scope="col" style="padding:.45rem .6rem">Points</th></tr></thead><tbody>
+  ${CASES.map(c=>{const s=S.cases[c.id];return `<tr><td>${String(c.id).padStart(2,"0")} · ${unlocked(c.id)?esc(c.title):"Classified"}</td><td>${s?.status==="solved"?"Solved":s?.status==="cold"?"Cold case":unlocked(c.id)?"Open":"Sealed"}</td><td>${s?s.attempts:"–"}</td><td>${s?Object.keys(s.hints).length:"–"}</td><td>${s?.score||0}</td></tr>`}).join("")}
+  <tr><td><b>Total</b></td><td>${t.closed} / 10 closed</td><td>${t.fails} failed</td><td></td><td><b>${t.score}</b></td></tr></tbody></table></div>
+  <p class="muted" style="margin-top:.8rem;font-size:.88rem">Elapsed time: <b style="color:var(--ink)">${fmt(elapsed())}</b>${S.end?" (finished)":""}. Progress is kept in this browser only.</p>
+  <p style="margin-top:1rem"><button class="ghost" id="reset">Clear my progress</button> <span id="resetConfirm" hidden><span class="muted" style="font-size:.88rem">This wipes every case and note.</span> <button class="ghost" id="resetYes" style="border-color:var(--red);color:var(--red)">Yes, clear it</button></span></p>
+  </section></div>`;
+}
+
+/* ---------- ROUTER ---------- */
+function route(){
+ const h=location.hash.replace("#","")||"desk";
+ document.querySelectorAll("[data-nav]").forEach(a=>a.toggleAttribute("aria-current",false));
+ let html;
+ const m=h.match(/^case-(\d+)$/);
+ if(m){const id=+m[1];if(route.cur!==h){tab="briefing";dsIdx=0;dsQ="";dsCol="";dsSort={c:-1,d:1}}html=viewCase(id)}
+ else if(h==="admin"){html=viewAdmin();$('[data-nav="admin"]').setAttribute("aria-current","page")}
+ else if(h==="standings"){html=viewStandings();$('[data-nav="standings"]').setAttribute("aria-current","page")}
+ else{html=viewDesk();$('[data-nav="desk"]').setAttribute("aria-current","page")}
+ route.cur=h; $("#app").innerHTML=html;
+}
+function rerender(keepFocus){const a=document.activeElement,id=a&&a.id,pos=a&&a.selectionStart;route();if(keepFocus&&id){const e=document.getElementById(id);if(e){e.focus();try{e.setSelectionRange(pos,pos)}catch(_){}}}}
+function go(h){if(location.hash==="#"+h)route();else location.hash=h;window.scrollTo({top:0})}
+window.addEventListener("hashchange",()=>{route();window.scrollTo({top:0})});
+
+document.addEventListener("click",e=>{
+ const g=e.target.closest("[data-go]");if(g){go(g.dataset.go);return}
+ const t=e.target.closest("[data-tab]");if(t){tab=t.dataset.tab;rerender();document.getElementById("tab-"+tab)?.focus();return}
+ const d=e.target.closest("[data-ds]");if(d){dsIdx=+d.dataset.ds;dsQ="";dsCol="";dsSort={c:-1,d:1};rerender();return}
+ const v=e.target.closest("[data-view]");if(v){dsView=v.dataset.view;rerender();return}
+ const s=e.target.closest("[data-sort]");if(s){const i=+s.dataset.sort;dsSort=dsSort.c===i?{c:i,d:-dsSort.d}:{c:i,d:1};rerender();document.querySelector(`[data-sort="${i}"]`)?.focus();return}
+ const cp=e.target.closest("[data-copy]");if(cp){const c=curCase();const ds=c.datasets[dsIdx];const txt=ds.cols.join(",")+"\n"+ds.rows.trim();
+  const fb=()=>toast("Copy is blocked here. Select the table and copy it manually.");
+  try{navigator.clipboard.writeText(txt).then(()=>toast(`${ds.file} copied. Paste it into Excel or Python.`),fb)}catch(_){fb()}return}
+ const hb=e.target.closest("[data-hint]");if(hb){const c=curCase(),st=C(c.id);saveDraft(c);st.hints[hb.dataset.hint]=true;save();rerender();toast(`Hint unlocked. −${HINT_COST} pts on that finding.`);return}
+ if(e.target.id==="reset"){$("#resetConfirm").hidden=false;return}
+ if(e.target.id==="resetYes"){S={name:S.name,start:null,end:null,cases:{},notes:{}};save();route();toast("Progress cleared.");return}
+});
+function curCase(){const m=(location.hash||"").match(/case-(\d+)/);return CASES.find(c=>c.id===+m?.[1])}
+function saveDraft(c){const f=$("#findings");if(!f)return;const st=C(c.id);c.questions.forEach((q,i)=>{if(q.t==="mc"){const r=f.querySelector(`input[name="a${i}"]:checked`);st.answers[i]=r?r.value:""}else st.answers[i]=f.querySelector(`#a${i}`).value});save()}
+document.addEventListener("input",e=>{
+ if(e.target.id==="detName"){S.name=e.target.value;save();const ok=!!S.name.trim(),b=$("#startBtn"),n=$("#nameNote");if(b)b.disabled=!ok;if(n)n.hidden=ok;if(ok!==route.named){route.named=ok;const f=document.querySelector(".folders");if(f){const tmp=document.createElement("div");tmp.innerHTML=viewDesk();f.replaceWith(tmp.querySelector(".folders"))}}}
+ if(e.target.id==="admq"){admQ=e.target.value;rerender(true)}
+ if(e.target.id==="notes"){const c=curCase();S.notes[c.id]=e.target.value;save()}
+ if(e.target.id==="dsq"){dsQ=e.target.value;rerender(true)}
+ if(e.target.id==="dscol"){dsCol=e.target.value;rerender(true)}
+ if(e.target.closest("#findings")){saveDraft(curCase())}
+});
+document.addEventListener("submit",e=>{
+ if(e.target.id!=="findings")return;e.preventDefault();
+ const c=curCase(),st=C(c.id);saveDraft(c);
+ if(c.questions.some((q,i)=>!String(st.answers[i]??"").trim())){toast("Fill in all five findings before you submit.");return}
+ st.attempts++;st.results=c.questions.map((q,i)=>check(q,st.answers[i]));
+ if(st.results.every(Boolean)){st.status="solved";st.score=c.questions.reduce((a,_,i)=>a+PTS-(st.hints[i]?HINT_COST:0),0)}
+ else if(st.attempts>=MAX_ATTEMPTS){st.status="cold";st.score=0}
+ else{const bad=st.results.filter(r=>!r).length;toast(`Rejected. ${bad} finding${bad>1?"s":""} contradict${bad>1?"":"s"} the data.`)}
+ if(CASES.every(x=>done(x.id))&&!S.end)S.end=Date.now();
+ save();rerender();
+});
+
+/* ---------- ORGANISER SYNC (Firebase) ---------- */
+const FB_V="10.12.2";
+let FB=null,ME=null,IS_ADMIN=false,AUTH_USER=null,lastSent="",syncing=false,syncTimer=null,syncState="off",PLAYERS=null,admQ="",admErr="",unsubPlayers=null,loginErr="",loginBusy=false;
+const configured=()=>!!(FIREBASE_CONFIG&&FIREBASE_CONFIG.apiKey&&!String(FIREBASE_CONFIG.apiKey).startsWith("PASTE"));
+function syncChip(){const m={off:"Practice mode · progress stays on this device",on:"Linked to the organisers' board",err:"Can't reach the organisers' board right now",denied:"The organisers' board refused the save",wait:"Linking to the organisers' board…"};return `<span class="sync ${syncState}" id="syncChip"><i></i>${m[syncState]}</span>`}
+function setSync(s){syncState=s;const c=$("#syncChip");if(c)c.outerHTML=syncChip()}
+function payload(){const t=totals(),cases={};let hints=0;for(const c of CASES){const s=S.cases[c.id];if(s){const h=Object.keys(s.hints).length;hints+=h;cases[c.id]={status:s.status,attempts:s.attempts,hints:h,score:s.score||0}}}
+ return{name:(S.name||"").trim().slice(0,40),solved:t.solved,closed:t.closed,score:t.score,fails:t.fails,hints,current:activeCase(),startedAt:S.start||null,endedAt:S.end||null,cases}}
+function isPlayer(){return FB&&ME&&AUTH_USER&&AUTH_USER.isAnonymous}
+function queueSync(){if(!isPlayer())return;clearTimeout(syncTimer);syncTimer=setTimeout(doSync,800)}
+async function doSync(){if(!isPlayer())return;if(syncing){queueSync();return}const p=payload();if(!p.name)return;const js=JSON.stringify(p);if(js===lastSent){setSync("on");return}syncing=true;
+ try{await FB.fs.setDoc(FB.fs.doc(FB.db,"players",ME),{...p,updatedAt:Date.now()});lastSent=js;setSync("on")}
+ catch(e){if(e&&e.code==="permission-denied")setSync("denied");else{setSync("err");setTimeout(queueSync,4000)}}
+ syncing=false}
+function rankPlayers(list){return list.slice().sort((a,b)=>{const fa=a.closed>=10,fb=b.closed>=10;if(fa!==fb)return fa?-1:1;if((b.solved||0)!==(a.solved||0))return (b.solved||0)-(a.solved||0);const ea=pEl(a),eb=pEl(b);if(ea!==eb)return ea-eb;if((b.score||0)!==(a.score||0))return (b.score||0)-(a.score||0);return (a.fails||0)-(b.fails||0)})}
+function pEl(p){return p.startedAt?Math.floor(((p.endedAt||Date.now())-p.startedAt)/1000):0}
+function ago(ms){const s=Math.max(0,Math.floor((Date.now()-ms)/1000));if(s<60)return "just now";if(s<3600)return Math.floor(s/60)+" min ago";if(s<86400)return Math.floor(s/3600)+" h ago";return Math.floor(s/86400)+" d ago"}
+function loginView(){
+ if(!configured())return `<section class="sheet"><span class="lbl">Organiser desk</span><h1 style="margin-top:.8rem;font-size:clamp(1.6rem,5vw,2.2rem)">Not connected yet</h1><p style="margin-top:.8rem;max-width:60ch">Add your Firebase settings to the FIREBASE SETTINGS block in <code>index.html</code> to turn on the organiser desk. The README has the steps.</p></section>`;
+ if(AUTH_USER&&!AUTH_USER.isAnonymous)return `<section class="sheet"><span class="stamp red big">Restricted</span><p style="margin-top:1.2rem">${esc(AUTH_USER.email||"This account")} is signed in but is not on the organiser list. Add its UID to the <code>admins</code> collection in Firestore.</p><p style="margin-top:1rem"><button class="ghost" id="signOut">Sign out</button></p></section>`;
+ return `<section class="sheet" style="max-width:520px;margin-inline:auto">${clipSVG("2rem")}<span class="lbl">Restricted · organisers only</span><h1 style="margin-top:.8rem;font-size:clamp(1.6rem,5vw,2.2rem)">Organiser desk</h1>
+  <form id="login" style="display:grid;gap:.9rem;margin-top:1.2rem" novalidate>
+   <label for="lgEmail" class="muted" style="font-size:.85rem">Organiser email</label><input id="lgEmail" type="email" autocomplete="username" required style="border:0;border-bottom:2px solid var(--ink);background:transparent;padding:.3rem;font-size:1.05rem">
+   <label for="lgPass" class="muted" style="font-size:.85rem">Password</label><input id="lgPass" type="password" autocomplete="current-password" required style="border:0;border-bottom:2px solid var(--ink);background:transparent;padding:.3rem;font-size:1.05rem">
+   ${loginErr?`<p class="hint" style="border-left-color:var(--red)">${esc(loginErr)}</p>`:""}
+   <button class="cta" type="submit" ${loginBusy?"disabled":""}>${loginBusy?"Checking…":"Open organiser desk"}</button>
+  </form><p class="muted" style="font-size:.82rem;margin-top:1rem">Use a separate browser from the one you play in. Signing in here replaces the player session in this browser.</p></section>`;
+}
+function viewAdmin(){
+ if(!IS_ADMIN)return loginView();
+ const all=PLAYERS?rankPlayers(PLAYERS):[];
+ const live=all.filter(p=>Date.now()-(p.updatedAt||0)<10*60e3&&!p.endedAt).length, fin=all.filter(p=>p.closed>=10).length;
+ const avg=all.length?Math.round(all.reduce((a,p)=>a+(p.score||0),0)/all.length):0;
+ const q=admQ.trim().toLowerCase(), shown=all.map((p,i)=>({...p,rank:i+1})).filter(p=>!q||String(p.name).toLowerCase().includes(q));
+ const strip=p=>`<span class="strip" aria-label="${p.closed} of 10 cases closed">${CASES.map(c=>{const s=p.cases?.[c.id]?.status;return `<i class="${s==="solved"?"s":s==="cold"?"c":p.current===c.id?"o":""}" title="Case ${c.id}: ${s==="solved"?"solved":s==="cold"?"cold case":p.current===c.id?"working on it":"sealed"}"></i>`}).join("")}</span>`;
+ return `<div class="board"><section class="sheet ring">${clipSVG("2rem")}
+  <div class="secrow"><span class="lbl">Organiser desk</span><span style="display:flex;gap:.8rem;align-items:center;flex-wrap:wrap">${PLAYERS?`<span class="sync on"><i></i>Live</span>`:""}<button class="ghost" id="signOut">Sign out</button></span></div>
+  <h1 style="font-size:clamp(1.8rem,5vw,2.6rem)">Detectives on the case</h1>
+  <p class="muted" style="margin-top:.5rem;max-width:62ch">Ranked by the official rules: finishers first, then cases solved, time, score and fewest errors. Updates as players submit.</p>
+  <div class="metrics"><div class="metric"><span>Detectives</span><strong>${all.length}</strong></div><div class="metric"><span>Active now</span><strong>${live}</strong></div><div class="metric"><span>Finished all 10</span><strong>${fin}</strong></div><div class="metric"><span>Average score</span><strong>${avg} pts</strong></div></div>
+ </section>
+ <section class="sheet">
+  ${admErr?`<p>${esc(admErr)}</p>`
+  :!PLAYERS?`<p class="muted">Opening the case register…</p>`
+  :!all.length?`<p><b>No detectives yet.</b> <span class="muted">Players appear here as soon as they write their name on the case desk.</span></p>`
+  :`<div class="tools"><label class="sr" for="admq">Find a detective</label><input id="admq" type="search" placeholder="Find a detective by name" value="${esc(admQ)}"><span class="muted" style="font-size:.85rem">${shown.length} of ${all.length}</span><button class="ghost" id="dlResults">Download results CSV</button></div>
+  <div class="gridwrap" style="max-height:none"><table class="adm"><thead><tr>${["Rank","Detective","Progress","Closed","Score","Time","Failed","Hints","Last seen"].map(h=>`<th scope="col" style="padding:.45rem .6rem">${h}</th>`).join("")}</tr></thead><tbody>
+  ${shown.map(p=>`<tr><td class="rk">#${p.rank}</td><td class="nm">${esc(p.name||"Unnamed")}</td><td>${strip(p)}</td><td>${p.closed||0}/10${p.closed>=10?` <span class="stamp red" style="font-size:.6rem;border-width:2px;padding:0 .2rem">Done</span>`:""}</td><td><b>${p.score||0}</b></td><td class="el" data-s="${p.startedAt||""}" data-e="${p.endedAt||""}">${p.startedAt?fmt(pEl(p)):"–"}</td><td>${p.fails||0}</td><td>${p.hints||0}</td><td>${Date.now()-(p.updatedAt||0)<10*60e3&&!p.endedAt?`<span class="live">● active</span>`:p.updatedAt?ago(p.updatedAt):"–"}</td></tr>`).join("")}
+  </tbody></table></div>
+  <p class="muted" style="font-size:.82rem;margin-top:.7rem">Progress squares: green solved, grey cold case, red outline the case they are on now. Time runs from when a player first opened Case 01.</p>`}
+ </section></div>`;
+}
+function downloadText(name,text){const b=new Blob([text],{type:"text/csv"});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+const csvCell=v=>{v=String(v??"");return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+function resultsCSV(){const rows=[["rank","name","cases_closed","cases_solved","score","elapsed","failed_attempts","hints","finished"]];rankPlayers(PLAYERS||[]).forEach((p,i)=>rows.push([i+1,p.name,p.closed||0,p.solved||0,p.score||0,p.startedAt?fmt(pEl(p)):"",p.fails||0,p.hints||0,p.endedAt?"yes":"no"]));return rows.map(r=>r.map(csvCell).join(",")).join("\n")}
+function watchPlayers(){if(unsubPlayers)return;unsubPlayers=FB.fs.onSnapshot(FB.fs.collection(FB.db,"players"),s=>{PLAYERS=s.docs.map(d=>({id:d.id,...d.data()}));admErr="";if(location.hash==="#admin"){const a=document.activeElement?.id;rerender(a==="admq")}},e=>{admErr="The player register stopped updating. Reload the page to reconnect.";unsubPlayers=null;if(location.hash==="#admin")route()})}
+async function hydrate(){try{const snap=await FB.fs.getDoc(FB.fs.doc(FB.db,"players",ME));if(!snap.exists())return;const r=snap.data();
+ if((r.closed||0)>totals().closed||(!S.start&&r.startedAt)){S.name=S.name||r.name||"";S.start=r.startedAt||S.start;S.end=r.endedAt||null;
+  for(const k in (r.cases||{})){const rc=r.cases[k],h={};for(let i=0;i<(rc.hints||0);i++)h[i]=true;S.cases[k]=Object.assign(C(+k),{status:rc.status,attempts:rc.attempts,score:rc.score,hints:h})}
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+ lastSent=JSON.stringify(payload())}catch(e){}}
+async function bootSync(){
+ if(!configured()){setSync("off");return}
+ setSync("wait");
+ try{const base=`https://www.gstatic.com/firebasejs/${FB_V}/`;
+  const [a,au,fs]=await Promise.all([import(base+"firebase-app.js"),import(base+"firebase-auth.js"),import(base+"firebase-firestore.js")]);
+  const app=a.initializeApp(FIREBASE_CONFIG);FB={auth:au.getAuth(app),db:fs.getFirestore(app),au,fs};
+ }catch(e){setSync("err");return}
+ FB.au.onAuthStateChanged(FB.auth,async u=>{
+  AUTH_USER=u;IS_ADMIN=false;if(unsubPlayers){unsubPlayers();unsubPlayers=null}PLAYERS=null;
+  if(!u){try{await FB.au.signInAnonymously(FB.auth)}catch(e){setSync("err")}route();return}
+  ME=u.uid;
+  if(u.isAnonymous){await hydrate();setSync(S.name.trim()?"wait":"on");queueSync()}
+  else{try{IS_ADMIN=(await FB.fs.getDoc(FB.fs.doc(FB.db,"admins",u.uid))).exists()}catch(e){}if(IS_ADMIN)watchPlayers();setSync("off")}
+  const al=document.getElementById("adminLink");if(al)al.hidden=!IS_ADMIN;
+  route();
+ });
+}
+document.addEventListener("submit",async e=>{if(e.target.id!=="login")return;e.preventDefault();if(!FB){loginErr="Firebase is not loaded. Check your connection and the FIREBASE SETTINGS block.";route();return}
+ const em=$("#lgEmail").value.trim(),pw=$("#lgPass").value;if(!em||!pw){loginErr="Enter your organiser email and password.";route();return}
+ loginBusy=true;loginErr="";route();
+ try{await FB.au.signInWithEmailAndPassword(FB.auth,em,pw)}catch(err){loginErr=/invalid|wrong|not-found|credential/.test(err.code||"")?"That email and password don't match an organiser account.":"Couldn't sign in. Try again in a moment."}
+ loginBusy=false;route()});
+document.addEventListener("click",async e=>{
+ if(e.target.id==="signOut"&&FB){await FB.au.signOut(FB.auth);return}
+ if(e.target.id==="dlResults"){downloadText("heralytics-results.csv",resultsCSV());return}
+ const d=e.target.closest("[data-dlcsv]");if(d){const c=curCase(),ds=c.datasets[dsIdx];downloadText(ds.file,ds.cols.join(",")+"\n"+ds.rows.trim());return}
+});
+
+/* ---------- BOOT ---------- */
+$("#tapeText").textContent=("CRIME SCENE · DO NOT CROSS · HERALYTICS · ").repeat(14);
+$("#fpMast").innerHTML=fingerprint();
+route();
+setInterval(()=>{const k=$("#clock");if(k)k.textContent=fmt(elapsed());document.querySelectorAll("td.el[data-s]").forEach(td=>{const s=+td.dataset.s,e=+td.dataset.e;if(s)td.textContent=fmt(Math.floor(((e||Date.now())-s)/1000))})},1000);
+bootSync();
+</script>
 </body>
 </html>
